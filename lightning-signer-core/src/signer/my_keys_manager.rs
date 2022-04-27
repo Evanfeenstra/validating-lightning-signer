@@ -183,7 +183,7 @@ impl MyKeysManager {
         rand_bytes_unique_start.input(&byte_utils::be32_to_array(starting_time_nanos));
         rand_bytes_unique_start.input(seed);
 
-        let bolt12_child = master_key
+        let bolt12_child = account_extended_key
             .ckd_priv(&secp_ctx, ChildNumber::from_hardened_idx(9735).unwrap())
             .expect("Your RNG is busted")
             .private_key;
