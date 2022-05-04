@@ -20,6 +20,7 @@ use lightning::ln::chan_utils::{
 use lightning::ln::{chan_utils, PaymentHash, PaymentPreimage};
 #[allow(unused_imports)]
 use log::{debug, trace, warn};
+use log::info;
 
 use crate::monitor::ChainMonitor;
 use crate::node::Node;
@@ -698,28 +699,33 @@ impl Channel {
             )
             .map_err(|ve| internal_error(format!("sighash failed: {}", ve)))?;
 
-        let secp_ctx = Secp256k1::new();
-        secp_ctx
+        info!("YYY 0");
+        self.secp_ctx
             .verify(
                 &sighash,
                 &counterparty_commit_sig,
                 &self.setup.counterparty_points.funding_pubkey,
             )
             .map_err(|ve| policy_error(format!("commit sig verify failed: {}", ve)))?;
+        info!("YYY 1");
 
         let per_commitment_point = self.get_per_commitment_point(commitment_number)?;
+        info!("YYY 2");
         let txkeys = self
             .make_holder_tx_keys(&per_commitment_point)
             .map_err(|err| internal_error(format!("make_holder_tx_keys failed: {}", err)))?;
+        info!("YYY 2a");
         let commitment_txid = recomposed_tx.trust().txid();
         let to_self_delay = self.setup.counterparty_selected_contest_delay;
+        info!("YYY 3");
 
         let htlc_pubkey = derive_public_key(
-            &secp_ctx,
+            &self.secp_ctx,
             &per_commitment_point,
             &self.keys.counterparty_pubkeys().htlc_basepoint,
         )
         .map_err(|err| internal_error(format!("derive_public_key failed: {}", err)))?;
+        info!("YYY 4");
 
         let sig_hash_type = if self.setup.option_anchor_outputs() {
             SigHashType::SinglePlusAnyoneCanPay
@@ -753,7 +759,7 @@ impl Channel {
             )
             .map_err(|err| invalid_argument(format!("sighash failed for htlc {}: {}", ndx, err)))?;
 
-            secp_ctx
+            self.secp_ctx
                 .verify(&recomposed_tx_sighash, &counterparty_htlc_sigs[ndx], &htlc_pubkey)
                 .map_err(|err| {
                     policy_error(format!("commit sig verify failed for htlc {}: {}", ndx, err))
@@ -1591,6 +1597,7 @@ impl Channel {
         offered_htlcs: Vec<HTLCInfo2>,
         received_htlcs: Vec<HTLCInfo2>,
     ) -> Result<(CommitmentTransaction, CommitmentInfo2, Map<PaymentHash, u64>), Status> {
+        info!("ZZZ 0");
         if tx.output.len() != output_witscripts.len() {
             return Err(invalid_argument(format!(
                 "len(tx.output):{} != len(witscripts):{}",
@@ -1601,6 +1608,7 @@ impl Channel {
 
         // Since we didn't have the value at the real open, validate it now.
         self.validator().validate_channel_value(&self.setup)?;
+        info!("ZZZ 1");
 
         // Derive a CommitmentInfo first, convert to CommitmentInfo2 below ...
         let is_counterparty = false;
@@ -1612,7 +1620,9 @@ impl Channel {
             output_witscripts,
         )?;
 
+        info!("ZZZ 2");
         let commitment_point = &self.get_per_commitment_point(commitment_number)?;
+        info!("ZZZ 2a");
         let info2 = self.build_holder_commitment_info(
             &commitment_point,
             info.to_broadcaster_value_sat,
@@ -1625,6 +1635,7 @@ impl Channel {
         let incoming_payment_summary =
             self.enforcement_state.incoming_payments_summary(Some(&info2), None);
 
+        info!("ZZZ 3");
         self.validator()
             .validate_holder_commitment_tx(
                 &self.enforcement_state,
@@ -1649,6 +1660,7 @@ impl Channel {
         let htlcs =
             Self::htlcs_info2_to_oic(info2.offered_htlcs.clone(), info2.received_htlcs.clone());
 
+        info!("ZZZ 4");
         let recomposed_tx = self.make_holder_commitment_tx(
             commitment_number,
             feerate_per_kw,
@@ -1657,6 +1669,7 @@ impl Channel {
             htlcs.clone(),
         )?;
 
+        info!("ZZZ 5");
         if recomposed_tx.trust().built_transaction().transaction != *tx {
             debug_vals!(
                 &self.setup,
@@ -1709,6 +1722,7 @@ impl Channel {
         counterparty_htlc_sigs: &Vec<Signature>,
     ) -> Result<(PublicKey, Option<SecretKey>), Status> {
         let validator = self.validator();
+        info!("XXX 0");
         let (recomposed_tx, info2, incoming_payment_summary) = self
             .make_validated_recomposed_holder_commitment_tx(
                 tx,
@@ -1718,12 +1732,14 @@ impl Channel {
                 offered_htlcs,
                 received_htlcs,
             )?;
+        info!("XXX 0a");
 
         let node = self.get_node();
         let mut state = node.get_state();
         let delta =
             self.enforcement_state.claimable_balances(&*state, Some(&info2), None, &self.setup);
 
+        info!("XXX 1");
         self.check_holder_tx_signatures(
             commitment_number,
             feerate_per_kw,
@@ -1731,6 +1747,7 @@ impl Channel {
             counterparty_htlc_sigs,
             recomposed_tx,
         )?;
+        info!("XXX 2");
 
         let outgoing_payment_summary = self.enforcement_state.payments_summary(Some(&info2), None);
         state.validate_payments(
@@ -1752,6 +1769,7 @@ impl Channel {
             validator,
         );
 
+        info!("XXX 3");
         trace_enforcement_state!(&self.enforcement_state);
         self.persist()?;
 
