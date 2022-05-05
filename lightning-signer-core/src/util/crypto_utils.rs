@@ -4,7 +4,7 @@ use bitcoin::hashes::sha256::Hash as BitcoinSha256;
 use bitcoin::hashes::{Hash, HashEngine, Hmac, HmacEngine};
 use bitcoin::secp256k1;
 use bitcoin::secp256k1::{PublicKey, Secp256k1, SecretKey, Signature};
-use bitcoin::util::address::Payload;
+use bitcoin::util::address::{Payload, WitnessVersion};
 use bitcoin::util::bip32::{ChildNumber, ExtendedPrivKey, ExtendedPubKey};
 use bitcoin::Network;
 use bitcoin::{bech32, Script, SigHashType};
@@ -96,7 +96,7 @@ pub(crate) fn derive_key_lnd(
         .ckd_priv(&secp_ctx, ChildNumber::from_normal_idx(index).unwrap())
         .unwrap();
     let node_ext_pub = &ExtendedPubKey::from_private(&secp_ctx, &node_ext_prv);
-    (node_ext_pub.public_key.key, node_ext_prv.private_key.key)
+    (node_ext_pub.public_key, node_ext_prv.private_key)
 }
 
 // This function will panic if the ExtendedPrivKey::new_master fails.
@@ -214,7 +214,7 @@ pub(crate) fn payload_for_p2wpkh(key: &PublicKey) -> Payload {
     let mut hash_engine = BitcoinHash160::engine();
     hash_engine.input(&key.serialize());
     Payload::WitnessProgram {
-        version: bech32::u5::try_from_u8(0).expect("0<32"),
+        version: WitnessVersion::V0,
         program: BitcoinHash160::from_engine(hash_engine)[..].to_vec(),
     }
 }
@@ -223,7 +223,7 @@ pub(crate) fn payload_for_p2wsh(script: &Script) -> Payload {
     let mut hash_engine = BitcoinSha256::engine();
     hash_engine.input(&script[..]);
     Payload::WitnessProgram {
-        version: bech32::u5::try_from_u8(0).expect("0<32"),
+        version: WitnessVersion::V0,
         program: BitcoinSha256::from_engine(hash_engine)[..].to_vec(),
     }
 }
@@ -259,7 +259,7 @@ mod tests {
     use bitcoin::schnorr::KeyPair;
     use bitcoin::secp256k1::Message;
     use bitcoin::Network::Testnet;
-    use secp256k1_xonly::XOnlyPublicKey;
+    use bitcoin::XOnlyPublicKey;
 
     #[test]
     fn node_keys_native_test() -> Result<(), ()> {

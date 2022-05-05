@@ -39,9 +39,9 @@ use vls_protocol::serde_bolt::{LargeBytes, WireString};
 use vls_protocol::{model, Error as ProtocolError};
 
 use bitcoin::bech32::u5;
+use bitcoin::secp256k1::ecdsa::{RecoverableSignature, RecoveryId};
 use bitcoin::secp256k1::rand::rngs::OsRng;
 use bitcoin::secp256k1::rand::RngCore;
-use bitcoin::secp256k1::recovery::{RecoverableSignature, RecoveryId};
 use bitcoin::util::bip32::ExtendedPubKey;
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::util::psbt::PartiallySignedTransaction;
@@ -473,7 +473,7 @@ impl KeysManagerClient {
         let result: SignWithdrawalReply = self.call(message).expect("sign failed");
         let result_psbt: PartiallySignedTransaction =
             consensus::deserialize(&result.psbt.0).expect("deserialize PSBT");
-        result_psbt.inputs.into_iter().map(|i| i.final_script_witness.unwrap()).collect()
+        result_psbt.inputs.into_iter().map(|i| i.final_script_witness.unwrap().to_vec()).collect()
     }
 
     fn descriptor_to_utxo(d: &SpendableOutputDescriptor) -> Utxo {

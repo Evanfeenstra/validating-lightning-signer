@@ -14,7 +14,7 @@ use bitcoin::hash_types::BlockHash;
 use bitcoin::hashes::Hash;
 use bitcoin::hashes::sha256::Hash as Sha256;
 use bitcoin::hashes::hex::ToHex;
-use bitcoin::secp256k1::key::PublicKey;
+use bitcoin::secp256k1::PublicKey;
 use chain::transaction::OutPoint;
 use lightning::chain;
 use lightning::chain::{Confirm, Listen, chaininterface};
@@ -918,7 +918,7 @@ macro_rules! expect_payment_forwarded {
 		let events = $node.node.get_and_clear_pending_events();
 		assert_eq!(events.len(), 1);
 		match events[0] {
-			Event::PaymentForwarded { fee_earned_msat, claim_from_onchain_tx } => {
+			Event::PaymentForwarded { fee_earned_msat, claim_from_onchain_tx, .. } => {
 				assert_eq!(fee_earned_msat, $expected_fee);
 				assert_eq!(claim_from_onchain_tx, $upstream_force_closed);
 			},

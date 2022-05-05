@@ -112,9 +112,9 @@ checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
 
 [[package]]
 name = "bitcoin"
-version = "0.27.1"
+version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a41df6ad9642c5c15ae312dd3d074de38fd3eb7cc87ad4ce10f90292a83fe4d"
+checksum = "05bba324e6baf655b882df672453dbbc527bc938cadd27750ae510aaccc3a66a"
 dependencies = [
  "bech32",
  "bitcoin_hashes",
@@ -425,20 +425,15 @@ checksum = "ec647867e2bf0772e28c8bcde4f0d19a9216916e890543b5a03ed8ef27b8f259"
 [[package]]
 name = "lightning"
 version = "0.0.106"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "580647f97f8e6d138ad724027c8ca9b890b1001b05374c270bbee4c10309b641"
 dependencies = [
  "bitcoin",
  "core2",
  "hashbrown 0.11.2",
- "secp256k1",
 ]
 
 [[package]]
 name = "lightning-invoice"
 version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f069b6eb46d7639d07977d14dc7d9a40d9d8bc5ac2b47f1924318fec13edd5c0"
 dependencies = [
  "bech32",
  "bitcoin_hashes",
@@ -462,7 +457,6 @@ dependencies = [
  "lightning-invoice",
  "log",
  "scopeguard",
- "secp256k1-xonly",
 ]
 
 [[package]]
@@ -704,8 +698,9 @@ checksum = "355c411b00ad0634aa29824b37d0755e931a349b3230ffdef846c140eeed9c09"
 
 [[package]]
 name = "secp256k1"
-version = "0.20.3"
-source = "git+https://github.com/devrandom/rust-secp256k1.git?rev=4e745ebe7e4c9cd0a7e9c8d5c42e989522e52f71#4e745ebe7e4c9cd0a7e9c8d5c42e989522e52f71"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26947345339603ae8395f68e2f3d85a6b0a8ddfe6315818e80b8504415099db0"
 dependencies = [
  "rand",
  "secp256k1-sys",
@@ -713,17 +708,11 @@ dependencies = [
 
 [[package]]
 name = "secp256k1-sys"
-version = "0.4.1"
-source = "git+https://github.com/devrandom/rust-secp256k1.git?rev=4e745ebe7e4c9cd0a7e9c8d5c42e989522e52f71#4e745ebe7e4c9cd0a7e9c8d5c42e989522e52f71"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa6f71720acd498e888501dd485d54bb437735f02dd95eb717dac5aee6631894"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "secp256k1-xonly"
-version = "0.1.0"
-dependencies = [
- "bitcoin",
 ]
 
 [[package]]

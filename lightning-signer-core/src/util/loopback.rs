@@ -4,7 +4,7 @@ use std::convert::TryInto;
 use bitcoin::bech32::u5;
 use bitcoin::hash_types::WPubkeyHash;
 use bitcoin::hashes::Hash;
-use bitcoin::secp256k1::recovery::RecoverableSignature;
+use bitcoin::secp256k1::ecdsa::RecoverableSignature;
 use bitcoin::secp256k1::{All, PublicKey, Secp256k1, SecretKey, Signature};
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{Script, Transaction, TxOut};

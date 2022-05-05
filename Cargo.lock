@@ -194,16 +194,16 @@ checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
 
 [[package]]
 name = "bitcoin"
-version = "0.27.1"
+version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a41df6ad9642c5c15ae312dd3d074de38fd3eb7cc87ad4ce10f90292a83fe4d"
+checksum = "05bba324e6baf655b882df672453dbbc527bc938cadd27750ae510aaccc3a66a"
 dependencies = [
  "bech32",
  "bitcoin_hashes 0.10.0",
  "bitcoinconsensus",
  "core2",
  "hashbrown 0.8.2",
- "secp256k1",
+ "secp256k1 0.22.1",
  "serde",
 ]
 
@@ -875,22 +875,17 @@ checksum = "efaa7b300f3b5fe8eb6bf21ce3895e1751d9665086af2d64b42f19701015ff4f"
 [[package]]
 name = "lightning"
 version = "0.0.106"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "580647f97f8e6d138ad724027c8ca9b890b1001b05374c270bbee4c10309b641"
 dependencies = [
  "bitcoin",
  "core2",
  "hashbrown 0.11.2",
  "hex 0.4.3",
  "regex 0.2.11",
- "secp256k1",
 ]
 
 [[package]]
 name = "lightning-invoice"
 version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f069b6eb46d7639d07977d14dc7d9a40d9d8bc5ac2b47f1924318fec13edd5c0"
 dependencies = [
  "bech32",
  "bitcoin_hashes 0.10.0",
@@ -898,7 +893,7 @@ dependencies = [
  "hashbrown 0.11.2",
  "lightning",
  "num-traits",
- "secp256k1",
+ "secp256k1 0.22.1",
 ]
 
 [[package]]
@@ -918,7 +913,6 @@ dependencies = [
  "paste",
  "rand 0.4.6",
  "scopeguard",
- "secp256k1-xonly",
  "tempfile",
  "test-log",
  "tonic",
@@ -1595,7 +1589,17 @@ checksum = "97d03ceae636d0fed5bae6a7f4f664354c5f4fcedf6eef053fef17e49f837d0a"
 dependencies = [
  "bitcoin_hashes 0.9.7",
  "rand 0.6.5",
- "secp256k1-sys",
+ "secp256k1-sys 0.4.2",
+]
+
+[[package]]
+name = "secp256k1"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26947345339603ae8395f68e2f3d85a6b0a8ddfe6315818e80b8504415099db0"
+dependencies = [
+ "rand 0.6.5",
+ "secp256k1-sys 0.5.1",
  "serde",
 ]
 
@@ -1609,10 +1613,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "secp256k1-xonly"
-version = "0.1.0"
+name = "secp256k1-sys"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa6f71720acd498e888501dd485d54bb437735f02dd95eb717dac5aee6631894"
 dependencies = [
- "bitcoin",
+ "cc",
 ]
 
 [[package]]
@@ -2346,7 +2352,7 @@ dependencies = [
  "bit-vec",
  "lightning-signer-core",
  "log",
- "secp256k1",
+ "secp256k1 0.22.1",
  "serde",
  "vls-protocol",
 ]
@@ -2370,7 +2376,7 @@ dependencies = [
  "log",
  "nix 0.22.3",
  "prost",
- "secp256k1",
+ "secp256k1 0.20.3",
  "serde",
  "tokio",
  "tokio-stream",

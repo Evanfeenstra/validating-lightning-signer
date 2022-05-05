@@ -2,7 +2,7 @@ use bitcoin::hashes::hex::ToHex;
 use bitcoin::policy::DUST_RELAY_TX_FEE;
 use bitcoin::secp256k1::{PublicKey, Secp256k1, SecretKey};
 use bitcoin::util::bip143::SigHashCache;
-use bitcoin::{self, Network, Script, SigHash, SigHashType, Transaction};
+use bitcoin::{self, Network, Script, SigHashType, Sighash, Transaction};
 use lightning::chain::keysinterface::{BaseSign, InMemorySigner};
 use lightning::ln::chan_utils::{
     build_htlc_transaction, htlc_success_tx_weight, htlc_timeout_tx_weight,
@@ -699,7 +699,7 @@ impl Validator for SimpleValidator {
         redeemscript: &Script,
         htlc_amount_sat: u64,
         output_witscript: &Script,
-    ) -> Result<(u32, HTLCOutputInCommitment, SigHash, SigHashType), ValidationError> {
+    ) -> Result<(u32, HTLCOutputInCommitment, Sighash, SigHashType), ValidationError> {
         let to_self_delay = if is_counterparty {
             setup.holder_selected_contest_delay // the local side imposes this value
         } else {

@@ -19,7 +19,7 @@ use lightning_signer::bitcoin::consensus::{Decodable, Encodable};
 use lightning_signer::bitcoin::secp256k1::Secp256k1;
 use lightning_signer::bitcoin::util::bip32::{ChildNumber, KeySource};
 use lightning_signer::bitcoin::util::psbt::PartiallySignedTransaction;
-use lightning_signer::bitcoin::{OutPoint, Transaction};
+use lightning_signer::bitcoin::{OutPoint, Transaction, Witness};
 use lightning_signer::channel::{
     ChannelBase, ChannelId, ChannelSetup, CommitmentType, TypedSignature,
 };
@@ -302,7 +302,7 @@ impl Handler for RootHandler {
 
                 for (i, stack) in witvec.into_iter().enumerate() {
                     if !stack.is_empty() {
-                        psbt.inputs[i].final_script_witness = Some(stack);
+                        psbt.inputs[i].final_script_witness = Some(Witness::from_vec(stack));
                     }
                 }
 
@@ -394,7 +394,7 @@ impl Handler for RootHandler {
     }
 }
 
-fn extract_output_path(x: &BTreeMap<bitcoin::util::ecdsa::PublicKey, KeySource>) -> Vec<u32> {
+fn extract_output_path(x: &BTreeMap<PublicKey, KeySource>) -> Vec<u32> {
     if x.is_empty() {
         return Vec::new();
     }

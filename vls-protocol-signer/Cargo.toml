@@ -11,7 +11,7 @@ secp-lowmemory = ["secp256k1/lowmemory"]
 
 [dependencies]
 vls-protocol = { path = "../vls-protocol" }
-secp256k1 = { version = "0.20", default_features = false, features = ["rand"] }
+secp256k1 = { version = "0.22", default_features = false, features = ["rand"] }
 log = { version = "0.4", default_features = false }
 serde = { version = "1.0", default_features = false }
 bit-vec = { version = "0.6", default_features = false }

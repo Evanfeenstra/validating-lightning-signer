@@ -14,7 +14,7 @@ use bitcoin::util::merkleblock::PartialMerkleTree;
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{
     Address, Block, BlockHash, BlockHeader, OutPoint as BitcoinOutPoint, SigHashType, Transaction,
-    TxIn, TxMerkleNode, TxOut,
+    TxIn, TxMerkleNode, TxOut, Witness,
 };
 use chain::chaininterface;
 use lightning::chain;
@@ -356,7 +356,7 @@ pub fn make_test_funding_wallet_input() -> TxIn {
         previous_output: bitcoin::OutPoint { txid: Default::default(), vout: 0 },
         script_sig: Script::new(),
         sequence: 0,
-        witness: vec![],
+        witness: Witness::new(),
     }
 }
 
@@ -772,7 +772,7 @@ pub fn funding_tx_validate_sig(
     witvec: &Vec<Vec<Vec<u8>>>,
 ) {
     for ndx in 0..tx.input.len() {
-        tx.input[ndx].witness = witvec[ndx].clone()
+        tx.input[ndx].witness = Witness::from_vec(witvec[ndx].clone())
     }
     let verify_result = tx.verify(|outpoint| {
         // hack, we collude w/ funding_tx_add_wallet_input
@@ -1116,14 +1116,14 @@ pub fn make_test_commitment_tx() -> bitcoin::Transaction {
         previous_output: BitcoinOutPoint { txid: Default::default(), vout: 0 },
         script_sig: Script::new(),
         sequence: 0,
-        witness: vec![],
+        witness: Witness::new(),
     };
     bitcoin::Transaction {
         version: 2,
         lock_time: 0,
         input: vec![input],
         output: vec![TxOut {
-            script_pubkey: payload_for_p2wpkh(&make_test_bitcoin_pubkey(1).key).script_pubkey(),
+            script_pubkey: payload_for_p2wpkh(&make_test_bitcoin_pubkey(1).inner).script_pubkey(),
             value: 300,
         }],
     }
@@ -1518,7 +1518,7 @@ pub fn make_txin(vout: u32) -> TxIn {
         previous_output: make_outpoint(vout),
         script_sig: Default::default(),
         sequence: 0,
-        witness: vec![],
+        witness: Witness::new(),
     }
 }
 
@@ -1533,7 +1533,7 @@ pub fn make_header(tip: BlockHeader, merkle_root: TxMerkleNode) -> BlockHeader {
 
 pub fn make_block(tip: BlockHeader, txs: Vec<Transaction>) -> Block {
     let txids: Vec<Txid> = txs.iter().map(|tx| tx.txid()).collect();
-    let merkle_root = bitcoin_merkle_root(txids.iter().map(Txid::as_hash)).into();
+    let merkle_root = bitcoin_merkle_root(txids.iter().map(Txid::as_hash)).unwrap().into();
     let header = make_header(tip, merkle_root);
     Block { header, txdata: txs }
 }

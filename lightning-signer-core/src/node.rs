@@ -13,11 +13,11 @@ use bitcoin::hashes::sha256::Hash as Sha256Hash;
 use bitcoin::hashes::sha256d::Hash as Sha256dHash;
 use bitcoin::hashes::Hash;
 use bitcoin::secp256k1::ecdh::SharedSecret;
-use bitcoin::secp256k1::recovery::RecoverableSignature;
+use bitcoin::secp256k1::ecdsa::RecoverableSignature;
 use bitcoin::secp256k1::{schnorrsig, All, Message, PublicKey, Secp256k1, SecretKey, Signature};
 use bitcoin::util::bip143::SigHashCache;
 use bitcoin::util::bip32::{ChildNumber, ExtendedPrivKey, ExtendedPubKey};
-use bitcoin::{secp256k1, Address, Transaction, TxOut};
+use bitcoin::{secp256k1, Address, Transaction, TxOut, XOnlyPublicKey};
 use bitcoin::{Network, OutPoint, Script, SigHashType};
 use lightning::chain;
 use lightning::chain::keysinterface::{
@@ -34,7 +34,6 @@ use lightning_invoice::{Invoice, RawDataPart, RawHrp, RawInvoice, SignedRawInvoi
 
 #[allow(unused_imports)]
 use log::{debug, info, trace, warn};
-use secp256k1_xonly::XOnlyPublicKey;
 
 use crate::chain::tracker::ChainTracker;
 use crate::channel::{Channel, ChannelBase, ChannelId, ChannelSetup, ChannelSlot, ChannelStub};
@@ -1144,7 +1143,7 @@ impl Node {
                     None => {
                         let key = self.get_wallet_privkey(&secp_ctx, &ipaths[idx])?;
                         let redeemscript =
-                            PublicKey::from_secret_key(&secp_ctx, &key.key).serialize().to_vec();
+                            PublicKey::from_secret_key(&secp_ctx, &key.inner).serialize().to_vec();
                         (key, vec![redeemscript])
                     }
                 };
@@ -1180,7 +1179,7 @@ impl Node {
                 let message = Message::from_slice(&sighash).map_err(|err| {
                     internal_error(format!("sighash {:?} failed: {}", spendtypes[idx], err))
                 })?;
-                let sig = secp_ctx.sign(&message, &privkey.key);
+                let sig = secp_ctx.sign(&message, &privkey.inner);
                 let sigvec = signature_to_bitcoin_vec(sig);
                 witness.insert(0, sigvec);
 
@@ -1261,7 +1260,7 @@ impl Node {
                 .ckd_priv(&secp_ctx, ChildNumber::from_normal_idx(*elem).unwrap())
                 .map_err(|err| internal_error(format!("derive child_path failed: {}", err)))?;
         }
-        Ok(xkey.private_key)
+        Ok(xkey.to_priv())
     }
 
     pub(crate) fn get_wallet_pubkey(
@@ -1401,7 +1400,7 @@ impl Node {
     pub fn ecdh(&self, other_key: &PublicKey) -> Vec<u8> {
         let our_key = self.keys_manager.get_node_secret(Recipient::Node).unwrap();
         let ss = SharedSecret::new(&other_key, &our_key);
-        ss[..].to_vec()
+        ss.secret_bytes().to_vec()
     }
 
     /// See [`MyKeysManager::spend_spendable_outputs`].
@@ -1614,7 +1613,7 @@ mod tests {
     use bitcoin::hashes::sha256d::Hash as Sha256dHash;
     use bitcoin::hashes::Hash;
     use bitcoin::secp256k1;
-    use bitcoin::secp256k1::recovery::{RecoverableSignature, RecoveryId};
+    use bitcoin::secp256k1::ecdsa::{RecoverableSignature, RecoveryId};
     use bitcoin::secp256k1::SecretKey;
     use bitcoin::util::bip143::SigHashCache;
     use bitcoin::{Address, OutPoint, SigHashType};

@@ -246,7 +246,7 @@ mod tests {
 
     use std::str::FromStr;
 
-    use bitcoin::{Block, BlockHeader, OutPoint, TxIn, TxMerkleNode, TxOut};
+    use bitcoin::{Block, BlockHeader, OutPoint, TxIn, TxMerkleNode, TxOut, Witness};
 
     use test_log::test;
 
@@ -260,7 +260,7 @@ mod tests {
                     previous_output: *previous_output,
                     script_sig: Default::default(),
                     sequence: 0,
-                    witness: vec![],
+                    witness: Witness::new(),
                 })
                 .collect(),
             output: outputs,
