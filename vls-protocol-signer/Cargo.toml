@@ -8,6 +8,7 @@ edition = "2018"
 default = ["std"]
 std = ["vls-protocol/std", "lightning-signer-core/std", "psbt-fixup/std"]
 secp-lowmemory = ["lightning-signer-core/secp-lowmemory"]
+vls-std = ["vls-protocol/std"]
 
 [dependencies]
 vls-protocol = { path = "../vls-protocol" }
